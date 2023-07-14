@@ -43,7 +43,8 @@ module "ec2-instance" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "5.2.1"
 
-  ami = "ami-0f55eb2c43a283d75" # Canonical, Ubuntu, 20.04 LTS, amd64 focal image build on 2023-06-05
+  #ami = "ami-0f55eb2c43a283d75" # Canonical, Ubuntu, 20.04 LTS, amd64 focal image build on 2023-06-05
+  ami = "ami-0373268fb2dac8b4b" # Ubuntu 22.04 LTS	amd64	hvm:ebs-ssd	20230711
   instance_type = "t2.micro"
   associate_public_ip_address = true
   name = "ec2-ubuntu"
