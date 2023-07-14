@@ -1,0 +1,35 @@
+---
+- name: Install Java and Solr
+  hosts: solr
+  #gather_facts: false
+  pre_tasks:
+    - name: Run "apt-get update" command
+      command: apt-get update
+      become: yes
+  roles:
+    # installs java 17
+    - role: geerlingguy.java
+      become: yes
+    
+    # installs solr
+    - role: geerlingguy.solr
+      become: yes # creating user group required sudo
+      #solr_workspace: "{{solr_setup_download_path}}" #this doesn't work, permission issues
+      #solr_group: solr_user_group
+      solr_cores: [] # please do not create any cores yourself
+      solr_create_user: no #creates an os user for solr
+      solr_user: ubuntu #couldn't make "solr" work
+      solr_version: "8.11.2" #http://archive.apache.org/dist/lucene/solr/
+      solr_service_manage: true
+      solr_service_name: solr
+      solr_service_state: started
+      solr_install_dir: /opt
+      solr_install_path: /opt/solr #solr executable is here
+      solr_home: /var/solr-data #index data is here
+      solr_port: "8983"
+      solr_xms: "512M" #t2.micro has a little less than 1g
+      solr_xmx: "512M"
+      solr_timezone: "UTC"
+      solr_opts: "$SOLR_OPTS -Dlog4j2.formatMsgNoLookups=true" #nice to be able to set solr opts here
+      solr_restart_handler_enabled: true #"restart solr" command makes solr restart
+      #Note: if you're building containers or AMIs, you might need to disable the restart handler for a provisioning run.

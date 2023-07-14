@@ -1,0 +1,30 @@
+# intended to be an example, for those who can't/don't want to install terraform and ansible on their pc
+# configure volumes/paths according to your own environment
+version: "3"
+services:
+
+  # either provide your access keys as env variabkes or mount your .aws folder for authentication
+  terraform:
+    image: hashicorp/terraform:1.5.3
+    #command: tail -F anything
+    volumes:
+      - /vm-shared/terraform-ansible-training/:/terraform-ansible-training
+      - /.aws/:/.aws
+      - /.ssh/:/.ssh
+    #environment:
+    #  - AWS_ACCESS_KEY_ID="your-aws-access-key"
+    #  - AWS_SECRET_ACCESS_KEY="your-aws-secret-access-key"
+    restart: "no"
+    network_mode: host
+
+  
+  ansible:
+    image: cytopia/ansible:2.13
+    command: tail -F anything
+    volumes:
+      - /.ssh:/.ssh
+      - /vm-shared/terraform-ansible-training:/terraform-ansible-training
+    #environment:
+    #  - KEY="value"
+    restart: "no"
+    network_mode: host
