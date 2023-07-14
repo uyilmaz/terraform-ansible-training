@@ -1,0 +1,8 @@
+--
+specify ssh key, remote user and inventory file:
+
+ansible -i ~/Desktop/ansible-inventory.txt -u ubuntu all -m ping
+ansible-playbook -i ~/Desktop/ansible-inventory.txt -u ubuntu prepare-instance.yaml
+
+
+ansible-playbook -i ./ansible-inventory.txt --key /.ssh/customPrivateKey -u ubuntu ./ansible-prepare-instance/prepare-instance.yaml
