@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+  <luceneMatchVersion>8.11.2</luceneMatchVersion>
+  <lib dir="${solr.install.dir:../../../..}/contrib/extraction/lib" regex=".*\.jar" />
+  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-cell-\d.*\.jar" />
+  <lib dir="${solr.install.dir:../../../..}/contrib/langid/lib/" regex=".*\.jar" />
+  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-langid-\d.*\.jar" />
+  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-ltr-\d.*\.jar" />
+  <lib dir="${solr.install.dir:../../../..}/contrib/velocity/lib" regex=".*\.jar" />
+  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-velocity-\d.*\.jar" />
+  <dataDir>${solr.data.dir:}</dataDir>
+  <directoryFactory name="DirectoryFactory" class="${solr.directoryFactory:solr.NRTCachingDirectoryFactory}" />
+  <codecFactory class="solr.SchemaCodecFactory" />
+  <indexConfig>
+    <lockType>${solr.lock.type:native}</lockType>
+    <infoStream>true</infoStream>
+  </indexConfig>
+  <jmx />
+  <updateHandler class="solr.DirectUpdateHandler2">
+    <updateLog>
+      <str name="dir">${solr.ulog.dir:}</str>
+      <int name="numVersionBuckets">${solr.ulog.numVersionBuckets:65536}</int>
+    </updateLog>
+    <autoCommit>
+      <maxTime>${solr.autoCommit.maxTime:15000}</maxTime>
+      <openSearcher>false</openSearcher>
+    </autoCommit>
+    <autoSoftCommit>
+      <maxTime>${solr.autoSoftCommit.maxTime:-1}</maxTime>
+    </autoSoftCommit>
+  </updateHandler>
+  <query>
+    <maxBooleanClauses>${solr.max.booleanClauses:1024}</maxBooleanClauses>
+    <slowQueryThresholdMillis>-1</slowQueryThresholdMillis>
+    <filterCache size="512" initialSize="512" autowarmCount="0" />
+    <queryResultCache size="512" initialSize="512" autowarmCount="0" />
+    <documentCache size="512" initialSize="512" autowarmCount="0" />
+    <cache name="perSegFilter" size="10" initialSize="0" autowarmCount="10" regenerator="solr.NoOpRegenerator" />
+    <cache enable="${solr.ltr.enabled:false}" name="QUERY_DOC_FV" size="4096" initialSize="2048" autowarmCount="4096" regenerator="solr.search.NoOpRegenerator" />
+    <enableLazyFieldLoading>true</enableLazyFieldLoading>
+    <queryResultWindowSize>20</queryResultWindowSize>
+    <queryResultMaxDocsCached>200</queryResultMaxDocsCached>
+    <listener event="newSearcher" class="solr.QuerySenderListener">
+      <arr name="queries"></arr>
+    </listener>
+    <listener event="firstSearcher" class="solr.QuerySenderListener">
+      <arr name="queries">
+        <lst>
+          <str name="q">static firstSearcher warming in solrconfig.xml</str>
+        </lst>
+      </arr>
+    </listener>
+    <useColdSearcher>false</useColdSearcher>
+  </query>
+  <circuitBreaker></circuitBreaker>
+  <requestDispatcher>
+    <httpCaching never304="true" />
+  </requestDispatcher>
+  <requestHandler name="/select" class="solr.SearchHandler">
+    <lst name="defaults">
+      <str name="echoParams">explicit</str>
+      <int name="rows">10</int>
+      <bool name="preferLocalShards">false</bool>
+    </lst>
+  </requestHandler>
+  <initParams path="/update/**,/select,update">
+    <lst name="defaults">
+      <str name="df">text</str>
+    </lst>
+  </initParams>
+  <searchComponent name="terms" class="solr.TermsComponent" />
+  <requestHandler name="/terms" class="solr.SearchHandler" startup="lazy">
+    <lst name="defaults">
+      <bool name="terms">true</bool>
+      <bool name="distrib">false</bool>
+    </lst>
+    <arr name="components">
+      <str>terms</str>
+    </arr>
+  </requestHandler>
+  <queryResponseWriter name="json" class="solr.JSONResponseWriter">
+    <str name="content-type">text/plain; charset=UTF-8</str>
+  </queryResponseWriter>
+  <queryParser enable="${solr.ltr.enabled:false}" name="ltr" class="org.apache.solr.ltr.search.LTRQParserPlugin" />
+  <transformer enable="${solr.ltr.enabled:false}" name="features" class="org.apache.solr.ltr.response.transform.LTRFeatureLoggerTransformerFactory">
+    <str name="fvCacheName">QUERY_DOC_FV</str>
+  </transformer>
+</config>

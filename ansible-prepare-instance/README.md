@@ -1,0 +1,1 @@
+This ansible playbook uses the ec2 instance we created in Terraform examples. It installs Java and Solr, then copies some custom config files (schema and solrconfig) created using Ansible templates.
