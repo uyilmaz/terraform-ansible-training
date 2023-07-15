@@ -1,11 +1,17 @@
 ---
 - name: Install Java and Solr
   hosts: solr
-  #gather_facts: false
+  vars:
+    solr_home: /var/solr-data
+    test_col_name: test-collection
+    test_col_path: "{{solr_home}}/data/{{test_col_name}}"
   pre_tasks:
-    - name: Run "apt-get update" command
-      command: apt-get update
-      become: yes
+  - name: Apt update
+    become: yes
+    ansible.builtin.apt:
+      update_cache: yes
+      cache_valid_time: 3600
+      upgrade: no
   roles:
     # installs java 17
     - role: geerlingguy.java
@@ -13,19 +19,18 @@
     
     # installs solr
     - role: geerlingguy.solr
-      become: yes # creating user group required sudo
-      #solr_workspace: "{{solr_setup_download_path}}" #this doesn't work, permission issues
+      become: yes # was required
       #solr_group: solr_user_group
       solr_cores: [] # please do not create any cores yourself
-      solr_create_user: no #creates an os user for solr
-      solr_user: ubuntu #couldn't make "solr" work
-      solr_version: "8.11.2" #http://archive.apache.org/dist/lucene/solr/
+      solr_create_user: no # creates an os user for solr
+      solr_user: ubuntu # couldn't make "solr" work
+      solr_version: "8.11.2" # latest available at: http://archive.apache.org/dist/lucene/solr/
       solr_service_manage: true
       solr_service_name: solr
       solr_service_state: started
       solr_install_dir: /opt
       solr_install_path: /opt/solr #solr executable is here
-      solr_home: /var/solr-data #index data is here
+      #solr_home: "{{solr_home}}" #index data is here. See https://stackoverflow.com/questions/21738661/ansible-recursive-loop-detected-in-template-string
       solr_port: "8983"
       solr_xms: "512M" #t2.micro has a little less than 1g
       solr_xmx: "512M"
@@ -33,3 +38,27 @@
       solr_opts: "$SOLR_OPTS -Dlog4j2.formatMsgNoLookups=true" #nice to be able to set solr opts here
       solr_restart_handler_enabled: true #"restart solr" command makes solr restart
       #Note: if you're building containers or AMIs, you might need to disable the restart handler for a provisioning run.
+  post_tasks:
+    - name: Create test collection config folder
+      become: yes
+      become_user: ubuntu
+      ansible.builtin.file:
+        path: "{{test_col_path}}"
+        state: directory
+        recurse: yes
+    - name: Copy our custom solr config
+      ansible.builtin.template:
+        src: ../solr-config-files/my-solrconfig.xml.j2
+        dest: "{{test_col_path}}/my-solrconfig.xml"
+    - name: Copy our custom solr schema
+      ansible.builtin.template:
+        src: ../solr-config-files/my-schema.xml.j2
+        dest: "{{test_col_path}}/my-schema.xml"
+    - name: Copy synonyms file
+      ansible.builtin.template:
+        src: ../solr-config-files/synonyms.txt.j2
+        dest: "{{test_col_path}}/synonyms.txt"
+    - name: Copy our custom solr schema
+      ansible.builtin.template:
+        src: ../solr-config-files/stopwords.txt.j2
+        dest: "{{test_col_path}}/stopwords.txt"
