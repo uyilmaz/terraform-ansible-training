@@ -1,0 +1,31 @@
+---
+- name: Install Java and Solr
+  hosts: solr
+  vars:
+    solr_home: /var/solr-data
+    test_col_name: test-collection
+    test_col_path: "{{solr_home}}/data/{{test_col_name}}"
+    tasks:
+    - name: Create test collection config folder
+      become: yes
+      become_user: solr
+      ansible.builtin.file:
+        path: "{{test_col_path}}"
+        state: directory
+        recurse: yes
+    - name: Copy our custom solr config
+      ansible.builtin.template:
+        src: ../solr-config-files/my-solrconfig.xml.j2
+        dest: "{{test_col_path}}/my-solrconfig.xml"
+    - name: Copy our custom solr schema
+      ansible.builtin.template:
+        src: ../solr-config-files/my-schema.xml.j2
+        dest: "{{test_col_path}}/my-schema.xml"
+    - name: Copy synonyms file
+      ansible.builtin.template:
+        src: ../solr-config-files/synonyms.txt.j2
+        dest: "{{test_col_path}}/synonyms.txt"
+    - name: Copy our custom solr schema
+      ansible.builtin.template:
+        src: ../solr-config-files/stopwords.txt.j2
+        dest: "{{test_col_path}}/stopwords.txt"
