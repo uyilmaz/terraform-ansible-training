@@ -1,0 +1,49 @@
+---
+- name: Copy solr configuration files
+  hosts: solr
+  vars:
+    solr_home: /var/solr-data
+    test_col_name: test-collection
+    test_col_path: "{{solr_home}}/data/{{test_col_name}}"
+  tasks:
+  - name: Create test collection config folder
+    become: yes
+    ansible.builtin.file:
+      path: "{{test_col_path}}"
+      state: directory
+      recurse: yes
+      mode: "u=rwx,g=r,o=r"
+      owner: solr
+      group: solr
+  - name: Copy our custom solr config
+    become: yes
+    ansible.builtin.template:
+      src: ../solr-config-files/my-solrconfig.xml.j2
+      dest: "{{test_col_path}}/my-solrconfig.xml"
+      mode: "u=rw,g=r,o=r"
+      owner: solr
+      group: solr
+  - name: Copy our custom solr schema
+    become: yes
+    ansible.builtin.template:
+      src: ../solr-config-files/my-schema.xml.j2
+      dest: "{{test_col_path}}/my-schema.xml"
+      mode: "u=rw,g=r,o=r"
+      owner: solr
+      group: solr
+  - name: Copy synonyms file
+    become: yes
+    ansible.builtin.template:
+      src: ../solr-config-files/synonyms.txt.j2
+      dest: "{{test_col_path}}/synonyms.txt"
+      mode: "u=rw,g=r,o=r"
+      owner: solr
+      group: solr
+  - name: Copy our custom solr schema
+    become: yes
+    ansible.builtin.template:
+      src: ../solr-config-files/stopwords.txt.j2
+      dest: "{{test_col_path}}/stopwords.txt"
+      mode: "u=rw,g=r,o=r"
+      owner: solr
+      group: solr
