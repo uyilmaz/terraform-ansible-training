@@ -34,19 +34,5 @@
       solr_restart_handler_enabled: true #"restart solr" command makes solr restart
       #Note: if you're building containers or AMIs, you might need to disable the restart handler for a provisioning run.
   post_tasks:
-    - name: Create test collection config folder
-      become: yes
-      become_user: ubuntu
-      ansible.builtin.file:
-        path: "{{test_col_path}}"
-        state: directory
-        recurse: yes
-    - name: Copy our custom Solr configuration files
-      ansible.builtin.template:
-        src: "{{item.src}}"
-        dest: "{{item.dest}}"
-      loop:
-        - {src: "../solr-config-files/my-solrconfig.xml.j2", dest: "{{test_col_path}}/my-solrconfig.xml"}
-        - {src: "../solr-config-files/my-schema.xml.j2", dest: "{{test_col_path}}/my-schema.xml"}
-        - {src: "../solr-config-files/synonyms.txt.j2", dest: "{{test_col_path}}/synonyms.txt"}
-        - {src: "../solr-config-files/stopwords.txt.j2", dest: "{{test_col_path}}/stopwords.txt"}
+    - include_tasks: post_tasks/create-folders-for-core-configs.yaml
+    - include_tasks: post_tasks/copy-config-files.yaml
