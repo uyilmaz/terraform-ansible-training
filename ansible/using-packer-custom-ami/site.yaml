@@ -1,0 +1,13 @@
+---
+# This playbook will copy Solr configuration files to hosts running Solr.
+
+- name: Copy solr configuration files
+
+  hosts: solr
+
+  vars_files:
+    - "./group_vars/solr.yaml"
+  
+  tasks:
+    - include_tasks: tasks/create-folders-for-core-configs.yaml
+    - include_tasks: tasks/copy-config-files.yaml

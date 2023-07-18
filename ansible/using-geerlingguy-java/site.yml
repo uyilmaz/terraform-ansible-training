@@ -1,17 +1,12 @@
 ---
+# This playbook installs Java and Solr to Debian hosts and then uploads custom Solr configuration files.
+
 - name: Install Java and Solr
   hosts: solr
-  vars:
-    solr_home: /var/solr-data
-    test_col_name: test-collection
-    test_col_path: "{{solr_home}}/data/{{test_col_name}}"
+  vars_files:
+    - "./group_vars/solr.yaml"
   pre_tasks:
-  - name: Apt update
-    become: yes
-    ansible.builtin.apt:
-      update_cache: yes
-      cache_valid_time: 3600
-      upgrade: no
+  - include_tasks: pre_tasks/apt_update.yaml
   roles:
     # installs java 17
     - role: geerlingguy.java
@@ -46,19 +41,12 @@
         path: "{{test_col_path}}"
         state: directory
         recurse: yes
-    - name: Copy our custom solr config
+    - name: Copy our custom Solr configuration files
       ansible.builtin.template:
-        src: ../solr-config-files/my-solrconfig.xml.j2
-        dest: "{{test_col_path}}/my-solrconfig.xml"
-    - name: Copy our custom solr schema
-      ansible.builtin.template:
-        src: ../solr-config-files/my-schema.xml.j2
-        dest: "{{test_col_path}}/my-schema.xml"
-    - name: Copy synonyms file
-      ansible.builtin.template:
-        src: ../solr-config-files/synonyms.txt.j2
-        dest: "{{test_col_path}}/synonyms.txt"
-    - name: Copy our custom solr schema
-      ansible.builtin.template:
-        src: ../solr-config-files/stopwords.txt.j2
-        dest: "{{test_col_path}}/stopwords.txt"
+        src: "{{item.src}}"
+        dest: "{{item.dest}}"
+      loop:
+        - {src: "../solr-config-files/my-solrconfig.xml.j2", dest: "{{test_col_path}}/my-solrconfig.xml"}
+        - {src: "../solr-config-files/my-schema.xml.j2", dest: "{{test_col_path}}/my-schema.xml"}
+        - {src: "../solr-config-files/synonyms.txt.j2", dest: "{{test_col_path}}/synonyms.txt"}
+        - {src: "../solr-config-files/stopwords.txt.j2", dest: "{{test_col_path}}/stopwords.txt"}

@@ -25,35 +25,3 @@ module "s3-bucket-for-tf-backend" {
     enabled = true
   }
 }
-
-/* 
-resource "aws_s3_bucket" "s3-bucket-for-tf-backend" {
-  bucket = "s3-bucket-for-tf-backend"
-  force_destroy = true #allows destroying a bucket even if it contains data
-} */
-
-# this didn't work with acl set to 'private'
-/* resource "aws_s3_bucket_acl" "acl-for-tf-backend" {
-  bucket = aws_s3_bucket.s3-bucket-for-tf-backend.id
-  acl = "private"
-} */
-
-#enables file versioning for this s3 bucket
-/* resource "aws_s3_bucket_versioning" "versioning-for-tf-backend" {
-  bucket = aws_s3_bucket.s3-bucket-for-tf-backend.id
-  versioning_configuration {
-    status = "Enabled"
-  }
-} */
-
-output "tf-s3-backend-bucket-id" {
-  value       = module.s3-bucket-for-tf-backend.s3_bucket_id
-}
-
-output "tf-s3-backend-bucket-arn" {
-  value       = module.s3-bucket-for-tf-backend.s3_bucket_arn
-}
-
-output "tf-s3-backend-bucket-region" {
-  value       = module.s3-bucket-for-tf-backend.s3_bucket_region
-}

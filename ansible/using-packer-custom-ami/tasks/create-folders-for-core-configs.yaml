@@ -1,0 +1,9 @@
+- name: Create test collection config folder
+  become: yes
+  ansible.builtin.file:
+    path: "{{test_col_path}}"
+    state: directory
+    recurse: yes
+    mode: "u=rwx,g=r,o=r"
+    owner: solr
+    group: solr
