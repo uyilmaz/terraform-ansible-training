@@ -19,6 +19,13 @@ data "aws_vpc" "default" {
   default = true
 }
 
+# AMI to use when creating the ec2 instance.
+variable "use_ami_id" {
+  type = string
+  #default = "ami-0320476aa0eccb88c" # Our custom AMI created by packer
+  default = "ami-0373268fb2dac8b4b" # Ubuntu 22.04 LTS	amd64	hvm:ebs-ssd	20230711
+}
+
 # path to the public ssh key to use with the ec2 instance
 # terraform plan -var="public_ssh_key_path=~/.ssh/id_rsa.pub"
 # terraform apply -var="public_ssh_key_path=~/.ssh/id_rsa.pub"
@@ -44,7 +51,7 @@ module "ec2-instance" {
   version = "5.2.1"
 
   #ami = "ami-0f55eb2c43a283d75" # Canonical, Ubuntu, 20.04 LTS, amd64 focal image build on 2023-06-05
-  ami = "ami-0373268fb2dac8b4b" # Ubuntu 22.04 LTS	amd64	hvm:ebs-ssd	20230711
+  ami = var.use_ami_id
   instance_type = "t2.micro"
   associate_public_ip_address = true
   name = "ec2-ubuntu"

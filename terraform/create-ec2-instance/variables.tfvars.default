@@ -1,0 +1,9 @@
+# Example variables file. Copy to a new file called variables.tfvars and use with terraform apply -var-file="variables.tfvars"
+
+public_ssh_key_path="~/.ssh/id_rsa.pub"
+
+use-ami-id=ami-0373268fb2dac8b4b # ami id to use, may be base Ubuntu or our custom ami from packer
+
+allow_ssh_access_from=["0.0.0.0/0"] # 0.0.0.0 opens to all of the world, be careful. <your-ip>/32 to open only to your IP.
+
+allow_solr_access_from=["0.0.0.0/0"] # 0.0.0.0 opens to all of the world, be careful. <your-ip>/32 to open only to your IP.
