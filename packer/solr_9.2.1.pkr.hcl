@@ -42,6 +42,6 @@ build {
     environment_vars = [
       "FOO=hello world",
     ]
-    script = "bash-commands-to-install-solr.sh"
+    script = "install-solr.sh"
   }
 }

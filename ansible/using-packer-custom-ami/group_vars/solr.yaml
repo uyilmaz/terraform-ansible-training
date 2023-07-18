@@ -1,0 +1,3 @@
+solr_home: /var/solr-data
+test_col_name: test-collection
+test_col_path: "{{solr_home}}/data/{{test_col_name}}"

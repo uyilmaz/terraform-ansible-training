@@ -1,7 +1,0 @@
-# example variables file. Copy to a new file called variables.tfvars and use with terraform apply -var-file="variables.tfvars"
-
-public_ssh_key_path="~/.ssh/id_rsa.pub"
-
-allow_ssh_access_from=["0.0.0.0/0"] #0.0.0.0 opens to all of the world, be careful
-
-allow_solr_access_from=["0.0.0.0/0"] #0.0.0.0 opens to all of the world, be careful

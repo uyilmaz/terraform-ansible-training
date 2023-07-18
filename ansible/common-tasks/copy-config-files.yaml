@@ -1,0 +1,13 @@
+- name: Copy our custom Solr configuration files
+  become: yes
+  ansible.builtin.template:
+    src: "{{item.src}}"
+    dest: "{{item.dest}}"
+    mode: "u=rw,g=r,o=r"
+    owner: solr
+    group: solr
+  loop:
+    - {src: "../../solr-config-files/my-solrconfig.xml.j2", dest: "{{test_col_path}}/my-solrconfig.xml"}
+    - {src: "../../solr-config-files/my-schema.xml.j2", dest: "{{test_col_path}}/my-schema.xml"}
+    - {src: "../../solr-config-files/synonyms.txt.j2", dest: "{{test_col_path}}/synonyms.txt"}
+    - {src: "../../solr-config-files/stopwords.txt.j2", dest: "{{test_col_path}}/stopwords.txt"}

@@ -6,6 +6,11 @@ terraform {
       version = "~>5.7"
     }
   }
+  backend "s3" {
+    bucket = "s3-bucket-for-tf-backend" #it seems we can't use variables here?
+    key    = "terraform-solr-state"
+    region = "eu-central-1"
+  }
 }
 
 provider "aws" {}
@@ -14,33 +19,14 @@ data "aws_vpc" "default" {
   default = true
 }
 
-# path to the public ssh key to use with the ec2 instance
-# terraform plan -var="public_ssh_key_path=~/.ssh/id_rsa.pub"
-# terraform apply -var="public_ssh_key_path=~/.ssh/id_rsa.pub"
-variable "public_ssh_key_path" {
-  type     = string
-  nullable = false
-}
-
-# cidr block from where the ssh access will be allowed
-variable "allow_ssh_access_from" {
-  type     = list(string)
-  nullable = false
-}
-
-# cidr block from where the Solr access will be allowed
-variable "allow_solr_access_from" {
-  type     = list(string)
-  nullable = false
-}
-
 module "ec2-instance" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "5.2.1"
-  ami                         = "ami-0320476aa0eccb88c" # Our custom AMI created by packer
+
+  ami                         = var.use_ami_id
   instance_type               = "t2.micro"
   associate_public_ip_address = true
-  name                        = "ec2-ubuntu-provision-test"
+  name                        = "ec2-ubuntu"
   key_name                    = aws_key_pair.ssh_key.key_name
   vpc_security_group_ids = [aws_security_group.allow-ssh-and-solr.id]
 }
@@ -81,16 +67,4 @@ resource "aws_security_group" "allow-ssh-and-solr" {
 resource "aws_key_pair" "ssh_key" {
   key_name   = "ssh_key"
   public_key = file(var.public_ssh_key_path) # file("~/.ssh/id_rsa.pub")
-}
-
-output "ec2-instance-id" {
-  value = module.ec2-instance.id
-}
-
-output "ec2-instance-arn" {
-  value = module.ec2-instance.arn
-}
-
-output "ec2-instance-public-ip" {
-  value = module.ec2-instance.public_ip
 }
